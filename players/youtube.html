@@ -59,6 +59,9 @@
 				videoId: id,
 				events: {
 					'onReady': function(event) {
+						if (params.vol) {
+							event.target.setVolume(+params.vol);
+						}
 						event.target.playVideo();
 						if (params.start) {
 							event.target.seekTo(params.start, true);
