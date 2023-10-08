@@ -52,7 +52,7 @@ wyozimc.AddProvider({
 
 		local startat = data.StartAt or 0
 
-		mtype.html:OpenURL(string.format("https://yupi2.github.io/wmc/players/youtube.html?vid=%s&forcehtml5=true&start=%d&vol=%f", wyozimc.JSEscape(data.Matches[1]), startat, wyozimc.GetMasterVolume())) -- dunno.. maybe..
+		mtype.html:OpenURL(string.format("https://yupi2.github.io/wmc/players/youtube.html?vid=%s&forcehtml5=true&start=%d&vol=%f", wyozimc.JSEscape(data.Matches[1]), startat, wyozimc.GetMasterVolume()*100)) -- dunno.. maybe..
 	end,
 	ParseUData = function(udata)
 		if udata.Matches[2] and udata.Matches[3] then -- Minutes and seconds
