@@ -24,7 +24,7 @@ wyozimc.AddProvider({
 	QueryMeta = function(udata, callback, failCallback)
 		local uri = udata.Matches[1]
 
-		local url = Format("http://gdata.youtube.com/feeds/api/videos/%s?alt=json", uri)
+		local url = "https://www.youtube.com/watch?v="..uri
 
 		wyozimc.Debug("Fetching query for " .. uri .. " from " .. url)
 
@@ -36,18 +36,8 @@ wyozimc.AddProvider({
 
 			local data = {}
 			data["URL"] = "http://www.youtube.com/watch?v=" .. uri
-
-			local jsontbl = util.JSONToTable(result)
-
-			if jsontbl and jsontbl.entry then
-				local entry = jsontbl.entry
-				data.Title = entry["title"]["$t"]
-				data.Duration = tonumber(entry["media$group"]["yt$duration"]["seconds"])
-			else
-				data.Title = "ERROR"
-				data.Duration = 60 -- lol wat
-			end
-
+			data.Title = string.match(result, "<title>(.*) %- YouTube</title>") or "ERROR"
+			data.Duration = (string.match(result, ',"approxDurationMs":"(%d+)",') or (60*1000)) / 1000 -- xd
 			callback(data)
 
 		end)
