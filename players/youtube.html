@@ -80,7 +80,7 @@
 		if (id) {
 			const now = new Date();
 			// 0-based months... cringe...
-			if (now.getMonth() == 11 && (now.getDate() == 24 || now.getDate() == 25) && Math.random() > 0.5) {
+			if (now.getMonth() == 11 && (now.getDate() >= 23 && now.getDate() <= 25) && Math.random() > 0.5) {
 				// https://youtu.be/aAkMkVFwAoo?t=52
 				id = "aAkMkVFwAoo";
 				params.start = 52;
