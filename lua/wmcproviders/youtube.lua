@@ -9,12 +9,12 @@ local all_patterns = {}
 
 -- Appends time modifier patterns to each pattern
 for k,p in pairs(raw_patterns) do
-	local hash_letter = "#"
-	if k == 1 then
-		hash_letter = "?"
-	end
-	table.insert(all_patterns, p .. hash_letter .. "t=(%d+)m(%d+)s")
-	table.insert(all_patterns, p .. hash_letter .. "t=(%d+)s?")
+	table.insert(all_patterns, p .. "%?t=(%d+)m(%d+)s")
+	table.insert(all_patterns, p .. "%?t=(%d+)s?")
+	table.insert(all_patterns, p .. "#t=(%d+)m(%d+)s")
+	table.insert(all_patterns, p .. "#t=(%d+)s?")
+	table.insert(all_patterns, p .. "&t=(%d+)m(%d+)s")
+	table.insert(all_patterns, p .. "&t=(%d+)s?")
 	table.insert(all_patterns, p)
 end
 
@@ -27,6 +27,23 @@ wyozimc.AddProvider({
 		local url = "https://www.youtube.com/watch?v="..uri
 
 		wyozimc.Debug("Fetching query for " .. uri .. " from " .. url)
+		--print("StartAt = "..udata.StartAt)
+
+		if SERVER then
+			http.Post(wyozimc.PostUrl, {url=url,startat=tostring(udata.StartAt)}, function(result, size)
+				if size == 0 then
+					failCallback("HTTP request failed (size = 0)")
+					return
+				end
+				callback(util.JSONToTable(result))
+			end, function(error)
+				if size == 0 then
+					failCallback("HTTP request failed ("..error..")")
+					return
+				end
+			end)
+			return
+		end
 
 		http.Fetch(url, function(result, size)
 			if size == 0 then
