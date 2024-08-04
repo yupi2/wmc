@@ -9,6 +9,7 @@ local all_patterns = {}
 -- Appends time modifier patterns to each pattern
 for k,p in pairs(raw_patterns) do
 	table.insert(all_patterns, p .. "#t=(%d+)m(%d+)s")
+	table.insert(all_patterns, p .. "#t=(%d+)s?")
 	table.insert(all_patterns, p)
 end
 
@@ -29,7 +30,9 @@ wyozimc.AddProvider({
 	end,
 	MediaType = "bass",
 	ParseUData = function(udata)
-		if udata.Matches[2] then -- Seconds
+		if udata.Matches[2] and udata.Matches[3] then -- Minutes and seconds
+			udata.StartAt = math.Round(tonumber(udata.Matches[2])) * 60 + math.Round(tonumber(udata.Matches[3]))
+		elseif udata.Matches[2] then -- Seconds
 			udata.StartAt = math.Round(tonumber(udata.Matches[2]))
 		end
 	end,
@@ -39,7 +42,7 @@ wyozimc.AddProvider({
 			opts.noblock = true
 			opts.startat = play_data.udata.StartAt
 		end
-		mtype:play(play_data.url, opts)
+		mtype:play(string.Split(play_data.url, "#t=")[1], opts)
 	end,
 	TranslateUrl = function(data, callback)
 		callback(data.WholeUrl)
