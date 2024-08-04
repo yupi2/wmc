@@ -13,6 +13,7 @@ util.AddNetworkString("wyozimc_cache")
 util.AddNetworkString("wyozimc_gui")
 
 wyozimc.MediaList = {}
+wyozimc.PostUrl = "https://google.com/a"
 
 local sql_data_source = nil
 
@@ -104,9 +105,16 @@ function wyozimc.AddMedia(link, by)
 		Date = os.time()
 	}
 
+	if provider.Name == "Youtube" then
+		by:ChatPrint("This download might take a bit of time...")
+	end
 	provider.QueryMeta(udata, function(data)
 
+		--PrintTable(data)
 		media.Title = data.Title
+		if provider.Name == "Youtube" then
+			media.Link = data.URL
+		end
 		wyozimc.ServerMediaList:Add(media)
 
 		if by then
@@ -282,6 +290,25 @@ net.Receive("wyozimc_play", function(le, cl)
 		local media = wyozimc.GetMediaByLink(wsp)
 		if media then
 			mediatitle = media.Title
+		end
+
+		if provider.Name == "Youtube" then
+			if media then
+				wsp = media.Link
+			else
+				cl:ChatPrint("downloading...")
+				provider.QueryMeta(udata, function(data)
+					wyozimc.ChatText(_, Color(255, 127, 0), "[MediaPlayer] ", cl, Color(255, 255, 255), " is playing ", Color(252, 84, 84), data.Title, Color(255, 255, 255), ". " .. (wyozimc.LocalStopCommand and ("Type " .. tostring(wyozimc.LocalStopCommand) .. " to stop.") or ""))
+
+					flags = bit.bor(flags, wyozimc.FLAG_DIRECT_REQUEST)
+
+					wyozimc.PlayForAll(data.URL, flags, {Title = data.Title})
+
+					wyozimc.Debug("We should play ", data.Title, " (", data.URL, ")")
+				end, function(errormsg) end)
+
+				return
+			end
 		end
 	end
 
